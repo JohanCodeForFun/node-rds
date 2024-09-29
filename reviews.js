@@ -24,3 +24,8 @@ async function insertReview({ username, feedback }) {
   // reviews = Result [{ username: "Murray", feedback: "Great job!" }]
   return reviews
 }
+
+module.exports = {
+  getReviews,
+  insertReview
+}
