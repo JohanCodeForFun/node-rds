@@ -1,3 +1,5 @@
+const client = require("./db");
+
 const createTable = `
   CREATE TABLE reviews(
     id serial PRIMARY KEY,
@@ -6,12 +8,19 @@ const createTable = `
   );
 `;
 
-client.query(createTable, (err, result) => {
-	if (err) {
-		console.error('Error creating table', err);
-	} else {
-		console.log('Table created successfully');
-	}
+const seedDatabase = async () => {
+  try {
+    await client.connect();
+    console.log('Connected to PostgreSQL database');
 
-	client.end();
-});
+    await client.query(createTable);
+    console.log('Table created successfully');
+  } catch (error) {
+    console.error('Error creating table', err);
+  } finally {
+    await client.end();
+    console.log('Connection to PostgreSQL closed');
+  }
+};
+
+module.exports = seedDatabase;
