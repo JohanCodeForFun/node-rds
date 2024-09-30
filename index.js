@@ -1,46 +1,55 @@
 const express = require("express");
 const client = require("./db");
-const seedDatabase = require("./dbseed");
 const app = express();
 
-app.get("/", (req, res) => res.send("Hello, world!"));
-app.get("/seed", async (req, res) => {
-  try {
-    await seedDatabase();
-    res.send("Database tables created successfully.");
-  } catch (error) {
-    res.status(500).send("Error creating database tables.");
-  }
-});
+// Middleware to parse JSON request bodies
+app.use(express.json());
 
+app.get("/", (req, res) => res.send("Hello, world!"));
 app.get("/ping", (req, res) => res.send("pong"));
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Express server - listening on port ${PORT}!`));
-
+// Connect to the PostgreSQL database once when the application starts
 client
-	.connect()
-	.then(() => {
-		console.log('Connected to PostgreSQL database');
+  .connect()
+  .then(() => {
+    console.log("Connected to PostgreSQL database");
 
-		client.query('SELECT * FROM reviews', (err, result) => {
-			if (err) {
-				console.error('Error executing query', err);
-			} else {
-				console.log('Query result:', result.rows);
-			}
+    app.get("/reviews", async (req, res) => {
+      try {
+        const result = await client.query("SELECT * FROM reviews");
+        console.log("Query result:", result.rows);
+        res.json(result.rows);
+      } catch (err) {
+        console.error("Error executing query", err);
+        res.status(500).send("Error retrieving reviews");
+      }
+    });
 
-			// Close the connection when done
-			client
-				.end()
-				.then(() => {
-					console.log('Connection to PostgreSQL closed');
-				})
-				.catch((err) => {
-					console.error('Error closing connection', err);
-				});
-		});
-	})
-	.catch((err) => {
-		console.error('Error connecting to PostgreSQL database', err);
-	});
+    app.post("/reviews", async (req, res) => {
+      const { username, feedback } = req.body;
+
+      const insertQuery = `
+        INSERT INTO reviews (username, feedback)
+        VALUES ($1, $2)
+        RETURNING *;
+      `;
+
+      try {
+        const result = await client.query(insertQuery, [username, feedback]);
+        console.log("Insert result:", result.rows[0]);
+        res.status(201).json(result.rows[0]);
+      } catch (err) {
+        console.error("Error executing query", err);
+        res.status(500).send("Error inserting review");
+      }
+    });
+  })
+  .catch((err) => {
+    console.error("Error connecting to PostgreSQL database", err);
+  });
+
+// Start the server
+const PORT = 3000;
+app.listen(PORT, () =>
+  console.log(`Express server - listening on port ${PORT}!`)
+);
