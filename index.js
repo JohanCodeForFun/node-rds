@@ -1,9 +1,18 @@
 const express = require("express");
 const client = require("./db");
+const cors = require('cors');
 const app = express();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+
+// Use the cors middleware
+app.use(cors({
+  origin: '*', // Allow requests from this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow these HTTP methods
+  credentials: true, // Allow cookies to be sent
+}));
 
 app.get("/", (req, res) => res.send("Hello, world!"));
 app.get("/ping", (req, res) => res.send("pong"));
