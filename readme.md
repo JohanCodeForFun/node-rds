@@ -6,6 +6,11 @@ använd följande för att node servern,
 - [ ] öppna projektet
 - [ ] npm install dependencies
 - [ ] Skapa AWS RDS Postgres server
+- [ ] Ladda ned Certificate authority, rds-ca-rsa2048-g1
+  - [ ] Läs, https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html
+  - [ ] ladda ner, https://truststore.pki.rds.amazonaws.com/eu-north-1/eu-north-1-bundle.pem
+  - [ ] Skapa ny mapp, /.ssh
+  - [ ] Lägg eu-north-1-bundle.pem i /.ssh
 - [ ] Kopiera innehållet i env.example
 - [ ] Skapa ny .env fil
 - [ ] Klistra in värden från env.example
